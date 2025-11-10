@@ -18,6 +18,21 @@ class Author(models.Model):
     def __str__(self):
         return f"{self.last_name[0]}.{self.first_name}"
 
+class Category(models.Model):
+        name_category = (models.CharField(
+            max_length=30,
+            unique=True,
+            verbose_name="Имя категории"
+        )
+
+    class Meta:
+        verbose_name = "Категория"
+        verbose_name_plural = "Категории"
+        ordering = ['name_category']
+
+    def __str__(self):
+        return self.name
+
 class Book(models.Model):
     GENRE_CHOICES=[
         ('FICTION','Fiction'), # 1 - в базу, 2 клиенту
@@ -29,7 +44,7 @@ class Book(models.Model):
     ]
 
 
-    title = models.CharField(max_length=255, verbose_name="Название книги")
+    title = models.CharField(max_length=255, verbose_name="Название")
     publication_date = models.DateField(blank=True, null=True, verbose_name="Дата публикации")
     author = models.ForeignKey(
         "Author",
@@ -43,10 +58,23 @@ class Book(models.Model):
         blank=True, null=True, verbose_name="Страницы"
     )
     genre = models.CharField(max_length=50, choices=GENRE_CHOICES, default='BIOGRAPHY')
+
     publisher = models.ForeignKey("Publisher", on_delete=models.SET_NULL, null=True, related_name="books" )
+
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.PROTECT,
+        verbose_name="Категория")
+
+    class Meta:
+        verbose_name = "Книги"
+        verbose_name_plural = "Книг"
+        ordering = ['title']
+
 
     def __str__(self):
         return f"{self.title} --{self.author.last_name if self.author else 'NONAME'}"
+
 
 
 class Publisher(models.Model):
@@ -54,3 +82,4 @@ class Publisher(models.Model):
     address = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=100, null=True, blank=True)
     country = models.CharField(max_length=100)
+
